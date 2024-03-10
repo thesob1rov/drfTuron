@@ -1,0 +1,21 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+
+
+<input type="text" class="name">
+<input type="text" class="password">
+<button class="send">Send</button>
+
+
+<button class="logaut">Logaut</button>
+
+<a href="{% url 'register_student' %}">register</a>
+<script src="{% static 'users/js/login/login.js' %}"></script>
+</body>
+</html>
