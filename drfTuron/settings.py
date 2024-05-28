@@ -39,12 +39,18 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'users.apps.UsersConfig',
     'students.apps.StudentsConfig',
+    'classes.apps.ClassesConfig',
+    'rooms.apps.RoomsConfig',
+    'teachers.apps.TeachersConfig',
+    'subjects.apps.SubjectsConfig',
+    'flows.apps.FlowsConfig',
     'rest_framework',
     'rest_framework.authtoken',
     'djoser',
     # 'rest_framework_jwt',
     # 'rest_framework_json_api'
     'django_filters',
+    'timetable.apps.TimetableConfig',
 ]
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

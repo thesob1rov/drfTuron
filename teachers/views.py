@@ -1,25 +1,25 @@
 from django.shortcuts import render
-from users.models import CustomUser
 
 from rest_framework.authentication import TokenAuthentication
-from rest_framework import status
+
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAdminUser, IsAuthenticated
-from rest_framework import permissions
 from rest_framework import generics, viewsets
-from django_filters.rest_framework import DjangoFilterBackend, FilterSet, filters
+
+from students.permissions import IsAdmin
+
+from users.models import CustomUser
+from .models import Teacher
+from subjects.models import Subjects
 
 import jwt
 import json
 
 from drfTuron.settings import SECRET_KEY
-from students.permissions import IsAdmin
-from students.models import Student
-from students.serializers import StudentSerializer
+from .serializers import TeacherSerializer
 
 
-class RegisterStudent(APIView):
+class RegisterTeacher(APIView):
     authentication_classes = (TokenAuthentication,)
 
     # permission_classes = [IsAdmin, ]
@@ -31,9 +31,7 @@ class RegisterStudent(APIView):
         user = CustomUser.objects.get(pk=user_id)
         status = IsAdmin(user)
         if status.is_user_admin():
-            print("True")
             data = json.loads(request.body)
-            print(data['birth_date'])
             user = CustomUser.objects.create_user(
                 username=data['username'],
                 email=data['email'],
@@ -44,45 +42,35 @@ class RegisterStudent(APIView):
                 role='student'
             )
             user.save()
-            student = Student(user_id=user.id)
-            student.save()
+            print(data)
+            subject = Subjects.objects.get(name=data['subject']['name'])
+            print(subject)
+            teacher = Teacher(user_id=user.id, subject_id=subject.id)
+            teacher.save()
             return Response({'post': data})
         else:
             return Response({'post': "Sani aqlingamas"})
 
 
-# class StudentList(generics.ListAPIView):
-#     authentication_classes = (TokenAuthentication,)
-#     queryset = Student.objects.all()
-#     serializer_class = StudentSerializer
-#
-#     def post(self, request):
-#         data = json.loads(request.body)
-#         # print()
-#
-#         return Response({'post': data})
-
-
-class StudentList(APIView):
-    authentication_classes = (TokenAuthentication,)
-
+class TeacherList(APIView):
     def get(self, request):
-        objects = Student.objects.all()
-        serializer = StudentSerializer(objects, many=True)
+        data = Teacher.objects.all()
+        serializer = TeacherSerializer(data, many=True)
         return Response(serializer.data)
 
     def post(self, request):
         data = json.loads(request.body)
-        # print()
 
-        return Response({'post': data})
+        if data['subject'] == 'all':
+            data = Teacher.objects.all()
+            serializer = TeacherSerializer(data, many=True)
+            return Response(serializer.data)
+        else:
+            data = Teacher.objects.filter(subject__name=data['subject'])
+            serializer = TeacherSerializer(data, many=True)
+            return Response(serializer.data)
 
 
-class FilteredNewStudentList(generics.ListAPIView):
-    authentication_classes = (TokenAuthentication,)
-
-    # def post(self):
-
-    def get_queryset(self):
-        queryset = Student.objects.all()
-        # class_number = self.
+class TeacherProfile(generics.RetrieveUpdateAPIView):
+    queryset = Teacher.objects.all()
+    serializer_class = TeacherSerializer

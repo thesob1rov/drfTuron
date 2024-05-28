@@ -6,6 +6,8 @@ from rest_framework import serializers
 
 from students.models import Student
 from users.models import CustomUser
+from classes.serializers import ClassSerializer
+
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -34,14 +36,16 @@ class UserListSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = CustomUser
-        fields = '__all__'
+        fields = ['id', 'username', 'first_name', 'last_name', 'password', 'role', 'birth_date', 'image', 'parent_name',
+                  'number', 'age']
 
 
 class StudentSerializer(serializers.ModelSerializer):
     # online userni srazu tushurib berishi uchun
     # user = serializers.HiddenField(default=serializers.CurrentUserDefault())
     user = UserListSerializer(read_only=True)
+    classes = ClassSerializer(read_only=True)
 
     class Meta:
         model = Student
-        fields = ['user', 'user']
+        fields = ['user', 'user', 'classes']
